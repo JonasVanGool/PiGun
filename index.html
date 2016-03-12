@@ -1,0 +1,249 @@
+<?php
+    $dir = "images";
+    $file_count = count(glob("{$dir}/*.*"));
+?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>J&J Prototypes: PhotoGun</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="prototype.js"></script>
+  </head>
+  <style>
+    body {
+      padding:0;
+      margin:0;
+    }
+    img{
+      position: absolute;
+      margin: auto;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  </style>
+  <body bgcolor="#000000">
+    <img id="content" src="reclame.jpg" width="640" height="480">
+    <img id="kader" src="KaderSpace.gif" width="640" height="480">
+    <script type="text/javascript">
+      /*
+       Configuration
+      */
+      var maxLoopCnt= 50;
+      var timeOutNew = 2000;
+      var timeOutLoop = 1000;
+      var frameLocation = 'KaderSpace.gif';
+      var reclameLocation = 'jandjprototypes.jpg'
+      var errorLocation = 'jandjprototypes.jpg'
+      var pictureShrink = 0.95;
+      var reclameFreqCounter = 1;
+      var reclameFreq = 50;
+      /*
+      Global variables
+      */    
+      var imagesArray = new Array();
+      var imagesArrayCircularIndex = 0;
+      var timeOut;
+      var pictureCount = 0;
+      var globalCount = 0;
+      var interCount = 0;
+      var interQueue = [];
+      var previousFile = 0;
+      var isFirst = true;
+      
+      /*
+      load frame
+      */
+      var frame = new Image();
+      var reclameImage = new Image();
+      var errorImage = new Image();
+      reclameImage.src = reclameLocation;
+      frame.src = frameLocation;
+      errorImage.src = errorLocation;
+      
+      /*
+      functions
+      */
+      function preloadImages(maxCount){
+        var i;
+        for (i = maxCount; i > (maxCount-maxLoopCnt); i--) {
+          if( i == 0){
+            break;
+          }
+          if( i == maxCount){
+            addImage(i.toString(),true);
+          }else{
+            addImage(i.toString(),false);
+          }
+        }
+      }
+      
+      function addImage(fileResponse,updateScreen){
+        infunctionResponse = fileResponse;
+        if(imagesArrayCircularIndex == (maxLoopCnt)){
+          imagesArrayCircularIndex = 0;
+        }
+        if (infunctionResponse==''){
+          infunctionResponse = (previousFile + 1).toString();
+          //alert((previousFile + 1).toString() + " is empty");
+        }
+        
+        previousFile = parseInt(infunctionResponse);
+        
+        imagesArray[imagesArrayCircularIndex] = new Image();
+        if(updateScreen){
+          imagesArray[imagesArrayCircularIndex].onload = function () {displayNew()};
+          interQueue.push(imagesArrayCircularIndex);
+        } 
+        imagesArray[imagesArrayCircularIndex].src = 'pictures/' + infunctionResponse + '.jpg';
+        console.log(imagesArrayCircularIndex);
+        console.log(imagesArray[imagesArrayCircularIndex].src);
+        imagesArrayCircularIndex ++;
+        globalCount ++;
+      }
+      
+      function displayNew(){
+          clearTimeout(timeOut);
+          displayPicture(imagesArray[interQueue.shift()]);
+          timeOut = setTimeout(function () {nextImage()}, timeOutNew);
+      }
+      function getFrameSize(){
+          var total = { width: 0, height: 0};
+          var sizeWindow = {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            ratio: window.innerWidth/window.innerHeight
+          };
+          total.width = sizeWindow.width;
+          total.height = sizeWindow.height;
+          return total;
+      }
+      function getPictureSize(originalHieght,originalWidth){
+          var total = { width: 0, height: 0};
+          var sizeWindow = {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            ratio: window.innerWidth/window.innerHeight
+          };
+          var sizeImage = {
+            width: originalWidth,
+            height: originalHieght,
+            ratio: originalWidth/originalHieght
+          };
+          var newHeight = 10;
+          var newWidth = 10;
+          
+          if(sizeImage.ratio<sizeWindow.ratio){
+            newHeight = sizeWindow.height;
+            newWidth = (sizeWindow.height/sizeImage.height)*sizeImage.width;
+          }else{
+            newHeight = (sizeWindow.width/sizeImage.width)*sizeImage.height;
+            newWidth = sizeWindow.width;
+          }
+          total.width = newWidth;
+          total.height = newHeight;
+          return total;
+      }
+      function nextImage(){
+         if(pictureCount == Math.min(globalCount,maxLoopCnt)-1){
+            pictureCount = 0;
+         }
+         if((reclameFreqCounter%reclameFreq) == 0){
+          displayPicture(reclameImage);
+         }else{
+          displayPicture(imagesArray[pictureCount]);
+          pictureCount = pictureCount + 1;
+         }
+         reclameFreqCounter = reclameFreqCounter +1;
+         timeOut = setTimeout(function () {nextImage()},timeOutLoop);
+      }
+      function displayPicture(exterSource){
+          var source;
+         if(exterSource.height != 0){
+            source = exterSource;
+         }else{
+            source = errorImage;
+         }
+
+        //document.getElementById("kader").src = frameLocation;
+        document.getElementById("content").src = source.src;
+        
+        var newHieght = getPictureSize(source.height,source.width).height;
+        var newWidth = getPictureSize(source.height,source.width).width;
+        
+        var newHieghtKader = getPictureSize(frame.height,frame.width).height;
+        var newWidthKader = getPictureSize(frame.height,frame.width).width;
+        
+        document.getElementById("content").height = newHieght * pictureShrink;
+        document.getElementById("content").width = newWidth * pictureShrink;
+        
+        document.getElementById("kader").height = newHieghtKader;
+        document.getElementById("kader").width = newWidthKader;
+      }
+      /*
+      COMET functions
+      */
+      var Comet = Class.create();
+      Comet.prototype = {
+        timestamp: 0,
+        url: './backend.php',
+        noerror: true,
+
+        initialize: function() { },
+
+        connect: function()
+        {
+          this.ajax = new Ajax.Request(this.url, {
+            method: 'get',
+            parameters: { 'timestamp' : this.timestamp },
+            onSuccess: function(transport) {
+              // handle the server response
+              var response = transport.responseText.evalJSON();
+              this.comet.timestamp = response['timestamp'];
+              var result = response['msg'].split("_"); 
+              if(result.length !=1 && !isFirst){
+                //refresh webpage
+                location.reload();
+              }else{
+                if(isFirst){
+                  isFirst = false;
+                  preloadImages(parseInt(result[0]));
+                }else{
+                  addImage(result[0],true);
+                }
+              }
+              this.comet.handleResponse(response);
+              this.comet.noerror = true;
+            },
+            onComplete: function(transport) {
+              // send a new ajax request when this request is finished
+              if (!this.comet.noerror)
+                // if a connection problem occurs, try to reconnect each 2 seconds
+                setTimeout(function(){ comet.connect() }, 2000); 
+              else
+                this.comet.connect();
+              this.comet.noerror = false;
+            }
+          });
+          this.ajax.comet = this;
+        },
+        disconnect: function()
+        {
+        },
+        handleResponse: function(response)
+        { 
+        },
+        doRequest: function(request)
+        {
+          new Ajax.Request(this.url, {
+            method: 'get',
+            parameters: { 'msg' : request }
+          });
+        }
+      }
+      var comet = new Comet();
+      comet.connect();
+    </script>
+
+</body>
+</html>
