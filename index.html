@@ -30,14 +30,19 @@
        Configuration
       */
       var maxLoopCnt= 50;
-      var timeOutNew = 2000;
-      var timeOutLoop = 1000;
-      var frameLocation = 'KaderSpace.gif';
-      var reclameLocation = 'jandjprototypes.jpg'
+      var timeOutNew = 1000;
+      var timeOutLoop = 500;
+      //var frameLocation = 'KaderSpace.gif';
+      //var frameLocation = 'kaderJochemSnel.gif';
+      var frameLocation = 'kaderJochemTraag.gif';
       var errorLocation = 'jandjprototypes.jpg'
+      var dataReclameArray = new Array();
+      dataReclameArray.push({fileLocation:"reclame1.jpg", weight:10});
+      dataReclameArray.push({fileLocation:"reclame2.jpg", weight:10});
+      dataReclameArray.push({fileLocation:"jandjprototypes.jpg", weight:40});
       var pictureShrink = 0.95;
       var reclameFreqCounter = 1;
-      var reclameFreq = 50;
+      var reclameFreq = 2;
       /*
       Global variables
       */    
@@ -57,13 +62,48 @@
       var frame = new Image();
       var reclameImage = new Image();
       var errorImage = new Image();
-      reclameImage.src = reclameLocation;
       frame.src = frameLocation;
-      errorImage.src = errorLocation;
+      document.getElementById("kader").src = frameLocation;
       
+      /*
+      load reclame
+      */
+      var imagesReclameArray = new Array();
+      preReclameImages();
+      
+      /*
+      load error
+      */
+      errorImage.src = errorLocation;
+       
       /*
       functions
       */
+      function getReclameImage(){
+        var imageNumber = 0;
+        var totalWeigth = 0;
+        var index = 0;
+        for	(index = 0; index < dataReclameArray.length; index++){
+          totalWeigth = totalWeigth + dataReclameArray[index].weight;
+        }
+        var randomNumber = Math.floor((Math.random() * totalWeigth) + 1);
+        totalWeigth = 0;
+        for	(index = 0; index < dataReclameArray.length; index++){
+          totalWeigth = totalWeigth + dataReclameArray[index].weight;
+          if(randomNumber <= totalWeigth){
+            return imagesReclameArray[index];
+          }
+        }
+      }
+      
+      function preReclameImages(){
+        var index;
+        for	(index = 0; index < dataReclameArray.length; index++){
+          imagesReclameArray.push(new Image());
+          imagesReclameArray[imagesReclameArray.length-1].src = dataReclameArray[index].fileLocation;
+        }
+      }
+      
       function preloadImages(maxCount){
         var i;
         for (i = maxCount; i > (maxCount-maxLoopCnt); i--) {
@@ -149,7 +189,8 @@
             pictureCount = 0;
          }
          if((reclameFreqCounter%reclameFreq) == 0){
-          displayPicture(reclameImage);
+          //displayPicture(reclameImage);
+          displayPicture(getReclameImage());
          }else{
           displayPicture(imagesArray[pictureCount]);
           pictureCount = pictureCount + 1;
