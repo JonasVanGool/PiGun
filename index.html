@@ -35,7 +35,7 @@
   <body bgcolor="#000000">
     
     <img id="content" src="jandjprototypes.jpg" width="640" height="480">
-    <img id="kader" src="KaderSpace.gif" width="640" height="480">
+    <img id="kader" src="kaderNieuw.png" width="640" height="480">
     <p id="message"></p>
     <script type="text/javascript">
       /*
@@ -46,7 +46,7 @@
       var timeOutLoop = 5000;
       //var frameLocation = 'KaderSpace.gif';
       //var frameLocation = 'kaderJochemSnel.gif';
-      var frameLocation = 'kaderJochemTraag.gif';
+      var frameLocation = 'kaderNieuw.png';
       var errorLocation = 'jandjprototypes.jpg'
       
       var dataReclameArray = new Array();
@@ -202,6 +202,7 @@
           return total;
       }
       function nextImage(){
+          reclameFreqCounter = reclameFreqCounter +1;
          if(pictureCount == Math.min(globalCount,maxLoopCnt)-1){
             pictureCount = 0;
          }
@@ -212,13 +213,14 @@
           displayPicture(imagesArray[pictureCount],1);
           pictureCount = pictureCount + 1;
          }
-         reclameFreqCounter = reclameFreqCounter +1;
+         
          timeOut = setTimeout(function () {nextImage()},timeOutLoop);
       }
       function displayPicture(exterSource,useKader){
           var source;
          if(exterSource.height != 0){
             source = exterSource;
+            errorImage = exterSource;
          }else{
             source = errorImage;
          }

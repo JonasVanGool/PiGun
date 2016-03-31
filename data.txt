@@ -1,8 +1,8 @@
-65
+67
 empty 
-ok
+jiji
 Comic Sans MS
 100
-#ff0000
+#ffffff
 normal
 5000
