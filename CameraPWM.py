@@ -55,8 +55,8 @@ def trigger(channel):
     GPIO.output(flashOutPin, False)
     takingPicture = False
     stopPreview()
+    font = ImageFont.truetype("/var/www/fonts/Amble-Bold.ttf", 20)
     sleep(0.01)
-    #font = ImageFont.truetype("/var/www/fonts/Amble-Bold.ttf", 20)
     #img = Image.open('/var/www/imageTemp.jpg')
     #draw = ImageDraw.Draw(img)
     #draw.text((10, (mpsizes.MPX2[1]-40)),"J&J Prototypes",(205,133,63),font=font)
@@ -191,7 +191,8 @@ def sendRefresh():
   pictureCounter = getCount()
   file = open('/var/www/data.txt', 'w')
   file.truncate()
-  file.write(str(pictureCounter) + "_refresh")
+  file.write(str(pictureCounter) + '\n')
+  file.write(str('refresh'))
   file.close()
 
 def getCount():

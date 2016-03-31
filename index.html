@@ -21,10 +21,22 @@
       right: 0;
       bottom: 0;
     }
+    p{
+      text-align: center;
+      left: 0;
+      line-height: 200px;
+      margin: auto;
+      margin-top: -200px;
+      position: absolute;
+      top: 50%;
+      width: 100%;
+    }
   </style>
   <body bgcolor="#000000">
+    
     <img id="content" src="jandjprototypes.jpg" width="640" height="480">
     <img id="kader" src="KaderSpace.gif" width="640" height="480">
+    <p id="message"></p>
     <script type="text/javascript">
       /*
        Configuration
@@ -38,18 +50,19 @@
       var errorLocation = 'jandjprototypes.jpg'
       
       var dataReclameArray = new Array();
-      var useKaderOnReclame = 1;
-      dataReclameArray.push({fileLocation:"image__1.jpg", weight:10});
-      dataReclameArray.push({fileLocation:"image__2.jpg", weight:10});
-      var pictureShrink = 0.95;
+      var useKaderOnReclame = 0;
+      dataReclameArray.push({fileLocation:"image__1.jpg", weight:60});
+      dataReclameArray.push({fileLocation:"jandjprototypes.jpg", weight:40});
+      var pictureShrink = 1;
       var reclameFreqCounter = 1;
-      var reclameFreq = 2;
+      var reclameFreq = 20;
       /*
       Global variables
       */    
       var imagesArray = new Array();
       var imagesArrayCircularIndex = 0;
       var timeOut;
+      var timeOutResetText;
       var pictureCount = 0;
       var globalCount = 0;
       var interCount = 0;
@@ -80,6 +93,10 @@
       /*
       functions
       */
+      function resetText(){
+        document.getElementById("message").innerHTML = "";
+      }
+      
       function getReclameImage(){
         var imageNumber = 0;
         var totalWeigth = 0;
@@ -126,7 +143,6 @@
         }
         if (infunctionResponse==''){
           infunctionResponse = (previousFile + 1).toString();
-          //alert((previousFile + 1).toString() + " is empty");
         }
         
         previousFile = parseInt(infunctionResponse);
@@ -242,23 +258,53 @@
               // handle the server response
               var response = transport.responseText.evalJSON();
               this.comet.timestamp = response['timestamp'];
-              var result = response['msg'].split("_"); 
-              if(result.length !=1 && !isFirst){
-                //refresh webpage
-                location.reload();
+              // Split on line breaks
+              var result = response['msg'].split("\n"); 
+              if(isFirst){
+                // Read image number
+                var resultParse = parseInt(result[0]);
+                // Check for invalid information
+                if(resultParse == 'NaN'){
+                  resultParse = 0;
+                }  
+                // Fill the preload buffer
+                preloadImages(resultParse);
+                // Set the reclame counter for correct behavior(no reset)
+                reclameFreqCounter = resultParse;
               }else{
-                if(isFirst){
-                  isFirst = false;
-                  var resultParse = parseInt(result[0]);
-                  if(resultParse == 'NaN'){
-                    resultParse = 0;
-                  }        
-                  preloadImages(resultParse);
-                  reclameFreqCounter = resultParse;
-                }else{
+                if(result.length==1){
+                  // NORMAL IMAGE
                   addImage(result[0],true);
                 }
+                
+                if(result.length==2){ 
+                  // REFRESH
+                  location.reload();
+                }
+                
+                if(result.length>2){
+                  // MESSAGE
+                  document.getElementById("message").innerHTML = result[2];
+                  clearTimeout(timeOutResetText);
+                    // FONT
+                  if(result.length>3)
+                    document.getElementById("message").style.fontFamily  = result[3];
+                    // SIZE
+                  if(result.length>4)
+                    document.getElementById("message").style.fontSize = result[4];
+                    // COLOUR
+                  if(result.length>5)
+                    document.getElementById("message").style.color = result[5];
+                    // BOLD ITALIC ...
+                  if(result.length>6)
+                    document.getElementById("message").style.fontStyle = result[6];
+                    // RESET TIME
+                  if(result.length>7)
+                    timeOutResetText = setTimeout(function () {resetText()},result[7]);
+                }
               }
+              
+              isFirst = false;
               this.comet.handleResponse(response);
               this.comet.noerror = true;
             },

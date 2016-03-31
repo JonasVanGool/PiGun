@@ -1,0 +1,8 @@
+65
+empty 
+ok
+Comic Sans MS
+100
+#ff0000
+normal
+5000

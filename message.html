@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+function isNumberKey(evt){
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+        return false;
+    return true;
+}
+</script>
+<form action="message.php" method="post">
+  <input type="text" name="message" maxlength="30"></br>
+  <input type="number" value="5000" name="resetTime" onkeypress="return isNumberKey(event)"/></br>
+  <select name="fontFamily">
+     <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
+     <option value="Arial" style="font-family: Arial">Arial</option>
+     <option value="Times New Roman" style="font-family: 'Times New Roman'">Times New Roman</option>
+  </select></br>
+  <select name="fontStyle" value="normal">
+     <option value="normal" style="font-style: normal">normal</option>
+     <option value="italic" style="font-style: italic">italic</option>
+  </select></br>
+  <input type="color" name="color" value="#FFFFFF"></br>
+  <input type="number"  value="100" name="size" onkeypress="return isNumberKey(event)"/></br>
+  <input type="submit" value="Send">
+</form>
+
+</body>
+</html>
